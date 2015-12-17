@@ -70,6 +70,7 @@ public class WorksApiServiceImpl extends WorksApiService {
 		work.setBeginDate(newWork.getBeginDate());
 		work.setEndDate(newWork.getEndDate());
 		
+		workDao.saveWork(work);
 		return Response.ok().entity(work).build();
 	}
 

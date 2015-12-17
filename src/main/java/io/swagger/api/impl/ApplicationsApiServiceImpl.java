@@ -31,7 +31,7 @@ public class ApplicationsApiServiceImpl extends ApplicationsApiService {
 		//Auth test
 		String[] userPass = getUsernameAndPassword(token);
 		
-		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Integer.valueOf(userPass[0])));
+		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
 		if (restaurantTest == null) 
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))

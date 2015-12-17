@@ -42,7 +42,7 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 		//Auth test
 		String[] userPass = getUsernameAndPassword(token);
 		
-		Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Integer.valueOf(userPass[0])));
+		Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
 		if (restaurantTest == null) 
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
@@ -87,7 +87,7 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 		//Auth test
 		String[] userPass = getUsernameAndPassword(token);
 		
-		Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Integer.valueOf(userPass[0])));
+		Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
 		if (restaurantTest == null) 
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
@@ -111,7 +111,7 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 		//Auth test
 		String[] userPass = getUsernameAndPassword(token);
 		
-		Restaurant restaurant = restDao.getRestaurantById(new BigDecimal(Integer.valueOf(userPass[0])));
+		Restaurant restaurant = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
 		if (restaurant == null) 
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		else if (!restaurant.getPassword().equals(cryptWithMD5(userPass[1])))
