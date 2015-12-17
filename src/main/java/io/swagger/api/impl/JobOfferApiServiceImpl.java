@@ -55,7 +55,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 	public Response postJobOffer(NewJobOffer newJobOffer, String token)
 			throws NotFoundException {
 		
-		//Auth test
+		//Auth test for Restaurants
 		String[] userPass = getUsernameAndPassword(token);
 		
 		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
@@ -74,6 +74,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 		jobOffer.setSalary(newJobOffer.getSalary());
 		jobOffer.setRestaurantId(newJobOffer.getRestaurantId());
 		
+		//Only restaurants can create job offers.
 		jobOfferDao.saveJobOffer(jobOffer);
 		
 		return Response.ok().entity(jobOffer).build();
@@ -91,7 +92,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 	public Response putJobOfferById(BigDecimal jobOfferId, String token, NewJobOffer newJobOffer)
 			throws NotFoundException {
 		
-		//Auth test
+		//Auth test for Restaurants.
 		String[] userPass = getUsernameAndPassword(token);
 		
 		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
@@ -108,6 +109,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 		jobOffer.setSalary(newJobOffer.getSalary());
 		jobOffer.setRestaurantId(newJobOffer.getRestaurantId());
 		
+		//Update job offer made by a restaurant
 		jobOfferDao.updateJobOffer(jobOffer);
 			
 		return Response.ok().entity(jobOffer).build();
@@ -116,7 +118,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 	@Override
 	public Response deleteJobOfferById(BigDecimal jobOfferId, String token) throws NotFoundException {
 		
-		//Auth test
+		//Auth test for a Restaurant
 		String[] userPass = getUsernameAndPassword(token);
 		
 		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
@@ -125,6 +127,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Delete job offer made by a restaurant
 		jobOfferDao.deleteJobOffer(jobOfferId);
 		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
 	}
@@ -142,7 +145,7 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
-		//Check if jobOffer exists
+		//Check if jobOffer exists.
 		JobOffer jobOffer = jobOfferDao.getJobOfferById(jobOfferId);
 		if (jobOffer == null)
 			return Response.status(500).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "job offer not exist!")).build();
@@ -156,13 +159,14 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 		application.setJobOfferId(jobOfferId.longValue());
 		application.setApplicationDate(new Date(System.currentTimeMillis()));
 		
+		//Apply for a job. An application entity is created and stored in the DataStore.
 		ApplicationDao applicationDao = new ApplicationDao();
 		applicationDao.saveApplication(application);
 		
 		return Response.ok().entity(application).build();
 	}
 
-	//For password?
+	//Encrypt password for security
 	private String cryptWithMD5(String pass) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");

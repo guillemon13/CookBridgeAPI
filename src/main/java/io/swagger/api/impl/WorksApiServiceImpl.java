@@ -41,6 +41,7 @@ public class WorksApiServiceImpl extends WorksApiService {
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Retrieve all work positions that this chef had in this restaurant.
 		List<Work> works = workDao.getWorkByChefAndRestaurant(chefId, restaurantId);
 		GenericEntity<List<Work>> list = new GenericEntity<List<Work>>(works) {};
 		
@@ -70,6 +71,7 @@ public class WorksApiServiceImpl extends WorksApiService {
 		work.setBeginDate(newWork.getBeginDate());
 		work.setEndDate(newWork.getEndDate());
 		
+		//Chef saves its work position.
 		workDao.saveWork(work);
 		return Response.ok().entity(work).build();
 	}
@@ -85,6 +87,7 @@ public class WorksApiServiceImpl extends WorksApiService {
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+		
 		
 		Work work = workDao.getWorkById(workId);
 		return Response.ok().entity(work).build();
@@ -111,6 +114,7 @@ public class WorksApiServiceImpl extends WorksApiService {
 		work.setBeginDate(newWork.getBeginDate());
 		work.setEndDate(newWork.getEndDate());
 		
+		//Only chef can update work position. 
 		workDao.updateWork(work);
 		return Response.ok().entity(work).build();
 	}
@@ -127,12 +131,12 @@ public class WorksApiServiceImpl extends WorksApiService {
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Only chef can delete work position. 
 		workDao.deleteWork(workId);
 		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
 	}
 
-	
-	//For password?
+	//Encrypt password for security
 	private String cryptWithMD5(String pass) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");

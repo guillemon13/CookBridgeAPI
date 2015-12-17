@@ -69,6 +69,7 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 		restaurant.setCity(newRestaurant.getCity());
 		restaurant.setWebsite(newRestaurant.getWebsite());
 		
+		//Post entity sent by parameter. It is free for everyone.
 		restDao.saveRestaurant(restaurant);
 		return Response.ok().entity(restaurant).build();
 	}
@@ -101,6 +102,7 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 		restaurant.setCity(newRestaurant.getCity());
 		restaurant.setWebsite(newRestaurant.getWebsite());
 
+		//Only the owner can update its own data.
 		restDao.updateRestaurant(restaurant);
 		return Response.ok().entity(restaurant).build();
 	}
@@ -117,11 +119,12 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 		else if (!restaurant.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Only the owner can delete its own data.
 		restDao.deleteRestaurant(restaurantId);
 		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
 	}
 	
-	//For password?
+	//Encrypt password for security
 	private String cryptWithMD5(String pass) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");

@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.fluttercode.datafactory.impl.DataFactory;
 
+import com.google.appengine.api.search.Query;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.ObjectifyService;
 
 import io.swagger.model.Chef;
+import io.swagger.model.Work;
 
 public class ChefDao {
 
@@ -42,6 +44,13 @@ public class ChefDao {
 	{
 		Chef chef = ObjectifyService.ofy().load().type(Chef.class).id(chefId.longValueExact()).now();
 		ObjectifyService.ofy().delete().entity(chef).now();
+		
+		List<Work> works = ObjectifyService.ofy().load().type(Work.class).list();
+
+		for (Work work : works) {
+			if (work.getChefId() == chefId.longValueExact())
+				ObjectifyService.ofy().delete().entity(work);
+		}
 	}
 	
 	public Chef getDummyChef()

@@ -3,6 +3,7 @@ package io.swagger.dao;
 import io.swagger.model.Work;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.objectify.Key;
@@ -15,13 +16,15 @@ import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 public class WorkDao {
 	
 	public List<Work> getWorkByChefAndRestaurant(BigDecimal chefId, BigDecimal restaurantId) {
-		Filter chefIdFilter = new FilterPredicate("chefId", FilterOperator.EQUAL, chefId);
-		Filter restaurantIdFilter = new FilterPredicate("restaurantId", FilterOperator.EQUAL, restaurantId);
-				 
-	    Filter compoFilter = CompositeFilterOperator.and(chefIdFilter, restaurantIdFilter);
-	    
-		List<Work> work = ObjectifyService.ofy().load().type(Work.class).filter(compoFilter).list();
-		return work;
+		List<Work> works = ObjectifyService.ofy().load().type(Work.class).list();
+		List<Work> result = new ArrayList<Work>();
+		
+		for (Work work : works) {
+			if (work.getChefId() == chefId.longValue() && work.getRestaurantId() == restaurantId.longValue())
+				result.add(work);
+		}
+		
+		return result;
 	}
 	
 	public Work getWorkById(BigDecimal id)

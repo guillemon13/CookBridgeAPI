@@ -28,7 +28,7 @@ public class ApplicationsApiServiceImpl extends ApplicationsApiService {
 	public Response getApplication(String token, Double size,
 			BigDecimal jobOfferId) throws NotFoundException {
 		
-		//Auth test
+		//Auth test for Restaurants.
 		String[] userPass = getUsernameAndPassword(token);
 		
 		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
@@ -37,6 +37,8 @@ public class ApplicationsApiServiceImpl extends ApplicationsApiService {
 		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		
+		//Retrieve all job offer's applications.
 		List<Application> applications = appDao.getApplicationsByJobOffer(jobOfferId);
 		
 		return Response.ok().entity(applications).build();
@@ -55,6 +57,7 @@ public class ApplicationsApiServiceImpl extends ApplicationsApiService {
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Retrieve the chef's application.
 		Application application = appDao.getApplicationById(applicationId);
 		return Response.ok().entity(application).build();
 	}
@@ -72,11 +75,13 @@ public class ApplicationsApiServiceImpl extends ApplicationsApiService {
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Only a chef can delete its own application.
+		
 		appDao.deleteApplication(applicationId);
 		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
 	}
 	
-	//For password?
+	//Encrypt password for security
 	private String cryptWithMD5(String pass) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");

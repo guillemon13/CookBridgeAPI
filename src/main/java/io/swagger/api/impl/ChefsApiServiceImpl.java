@@ -28,7 +28,7 @@ public class ChefsApiServiceImpl extends ChefsApiService {
 	
 	@Override
 	public Response getChefs(String token, Double size) throws NotFoundException {
-		//Auth test
+		//Auth test. A chef can see other chefs.
 		String[] userPass = getUsernameAndPassword(token);
 		
 		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
@@ -56,6 +56,7 @@ public class ChefsApiServiceImpl extends ChefsApiService {
 		chef.setName(newChef.getName());
 		chef.setGender(newChef.getGender());
 
+		//Post entity sent by parameter. It is free for everyone.
 		chefDao.saveChef(chef);
 		
 		return Response.ok().entity(chef).build();
@@ -87,6 +88,7 @@ public class ChefsApiServiceImpl extends ChefsApiService {
 		chef.setName(newChef.getName());
 		chef.setGender(newChef.getGender());
 
+		//Only the owner can update its own data.
 		chefDao.updateItem(chef);
 		return Response.ok().entity(chef).build();
 	}
@@ -103,11 +105,12 @@ public class ChefsApiServiceImpl extends ChefsApiService {
 		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
 			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
 		
+		//Only the owner can delete its own data.
 		chefDao.deleteChef(chefId);
 		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
 	}
 	
-	//For password?
+	//Encrypt password for security
 	private String cryptWithMD5(String pass) {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
