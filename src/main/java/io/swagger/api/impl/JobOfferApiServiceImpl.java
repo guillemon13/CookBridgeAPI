@@ -3,19 +3,19 @@ package io.swagger.api.impl;
 import io.swagger.api.*;
 import io.swagger.model.*;
 
-import io.swagger.model.JobOffer;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import io.swagger.model.Chef;
 import io.swagger.model.NewJobOffer;
 import io.swagger.model.Restaurant;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
+
 import io.swagger.api.NotFoundException;
 import io.swagger.dao.ApplicationDao;
 import io.swagger.dao.ChefDao;
@@ -23,6 +23,7 @@ import io.swagger.dao.JobOfferDao;
 import io.swagger.dao.RestaurantDao;
 
 import com.sun.jersey.core.util.Base64;
+
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 
@@ -35,26 +36,28 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 	@Override
 	public Response getJobOffer(String token, Double size, BigDecimal restaurantId)
 			throws NotFoundException {
+		try {
+			if (restaurantId != null) {
+				List<JobOffer> jobOffers = jobOfferDao.getRestaurantJobOffers(restaurantId);
+				GenericEntity<List<JobOffer>> list = new GenericEntity<List<JobOffer>>(jobOffers) {};
+				
+				return Response.ok(list).build();
+			} else {
+				List<JobOffer> jobOffers = jobOfferDao.getRestaurantJobOffers();
+				GenericEntity<List<JobOffer>> list = new GenericEntity<List<JobOffer>>(jobOffers) {};
+				
+				return Response.ok(list).build();
+			}
 		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		List<JobOffer> jobOffers = jobOfferDao.getRestaurantJobOffers(restaurantId);
-		GenericEntity<List<JobOffer>> list = new GenericEntity<List<JobOffer>>(jobOffers) {};
-		
-		return Response.ok(list).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response postJobOffer(NewJobOffer newJobOffer, String token)
 			throws NotFoundException {
-		
+		try {
 		//Auth test for Restaurants
 		String[] userPass = getUsernameAndPassword(token);
 		
@@ -78,92 +81,108 @@ public class JobOfferApiServiceImpl extends JobOfferApiService {
 		jobOfferDao.saveJobOffer(jobOffer);
 		
 		return Response.ok().entity(jobOffer).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response getJobOfferById(BigDecimal jobOfferId)
 			throws NotFoundException {
 		
-		JobOffer jobOffer = jobOfferDao.getJobOfferById(jobOfferId);
-		return Response.ok().entity(jobOffer).build();
+		try {
+			JobOffer jobOffer = jobOfferDao.getJobOfferById(jobOfferId);
+			return Response.ok().entity(jobOffer).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response putJobOfferById(BigDecimal jobOfferId, String token, NewJobOffer newJobOffer)
 			throws NotFoundException {
-		
-		//Auth test for Restaurants.
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (restaurantTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		JobOffer jobOffer = new JobOffer();
-		
-		jobOffer.setId(jobOfferId.longValue());
-		jobOffer.setJobDescription(newJobOffer.getJobDescription());
-		jobOffer.setName(newJobOffer.getName());
-		jobOffer.setSalary(newJobOffer.getSalary());
-		jobOffer.setRestaurantId(newJobOffer.getRestaurantId());
-		
-		//Update job offer made by a restaurant
-		jobOfferDao.updateJobOffer(jobOffer);
+		try {
+			//Auth test for Restaurants.
+			String[] userPass = getUsernameAndPassword(token);
 			
-		return Response.ok().entity(jobOffer).build();
+			Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (restaurantTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			JobOffer jobOffer = new JobOffer();
+			
+			jobOffer.setId(jobOfferId.longValue());
+			jobOffer.setJobDescription(newJobOffer.getJobDescription());
+			jobOffer.setName(newJobOffer.getName());
+			jobOffer.setSalary(newJobOffer.getSalary());
+			jobOffer.setRestaurantId(newJobOffer.getRestaurantId());
+			
+			//Update job offer made by a restaurant
+			jobOfferDao.updateJobOffer(jobOffer);
+				
+			return Response.ok().entity(jobOffer).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response deleteJobOfferById(BigDecimal jobOfferId, String token) throws NotFoundException {
-		
-		//Auth test for a Restaurant
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (restaurantTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Delete job offer made by a restaurant
-		jobOfferDao.deleteJobOffer(jobOfferId);
-		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		try {
+			//Auth test for a Restaurant
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (restaurantTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			//Delete job offer made by a restaurant
+			jobOfferDao.deleteJobOffer(jobOfferId);
+			return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response applyToAJobOffer(BigDecimal jobOfferId, BigDecimal chefId, String token)
 			throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Check if jobOffer exists.
-		JobOffer jobOffer = jobOfferDao.getJobOfferById(jobOfferId);
-		if (jobOffer == null)
-			return Response.status(500).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "job offer not exist!")).build();
-		
-		Application application = new Application();
-		
-		BigInteger id = new BigInteger(130, random);
-		
-		application.setApplicationId(id.longValue());
-		application.setChefId(chefId.longValue());
-		application.setJobOfferId(jobOfferId.longValue());
-		application.setApplicationDate(new Date(System.currentTimeMillis()));
-		
-		//Apply for a job. An application entity is created and stored in the DataStore.
-		ApplicationDao applicationDao = new ApplicationDao();
-		applicationDao.saveApplication(application);
-		
-		return Response.ok().entity(application).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			//Check if jobOffer exists.
+			JobOffer jobOffer = jobOfferDao.getJobOfferById(jobOfferId);
+			if (jobOffer == null)
+				return Response.status(500).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "job offer not exist!")).build();
+			
+			Application application = new Application();
+			
+			BigInteger id = new BigInteger(130, random);
+			
+			application.setApplicationId(id.longValue());
+			application.setChefId(chefId.longValue());
+			application.setJobOfferId(jobOfferId.longValue());
+			application.setApplicationDate(new Date(System.currentTimeMillis()));
+			
+			//Apply for a job. An application entity is created and stored in the DataStore.
+			ApplicationDao applicationDao = new ApplicationDao();
+			applicationDao.saveApplication(application);
+			
+			return Response.ok().entity(application).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	//Encrypt password for security

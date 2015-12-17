@@ -28,86 +28,102 @@ public class ChefsApiServiceImpl extends ChefsApiService {
 	
 	@Override
 	public Response getChefs(String token, Double size) throws NotFoundException {
-		//Auth test. A chef can see other chefs.
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		List<Chef> chefs = chefDao.getAllChefs();
-		GenericEntity<List<Chef>> list = new GenericEntity<List<Chef>>(chefs) {};
-		
-		return Response.ok(list).build();
+		try {
+			List<Chef> chefs = chefDao.getAllChefs();
+			GenericEntity<List<Chef>> list = new GenericEntity<List<Chef>>(chefs) {};
+			
+			if (size != null) {
+				chefs.subList(0, Integer.valueOf(size.toString()));
+				list = new GenericEntity<List<Chef>>(chefs) {};
+			}
+			
+			return Response.ok(list).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response postChef(NewChef newChef) throws NotFoundException {
-		ChefDao chefDao = new ChefDao();
-		Chef chef = new Chef();
-		
-		BigInteger id = new BigInteger(130, random);
-		
-		chef.setId(id.longValue());
-		chef.setPassword(cryptWithMD5(newChef.getPassword()));
-		chef.setBirthDate(newChef.getBirthDate());
-		chef.setName(newChef.getName());
-		chef.setGender(newChef.getGender());
-
-		//Post entity sent by parameter. It is free for everyone.
-		chefDao.saveChef(chef);
-		
-		return Response.ok().entity(chef).build();
+		try {
+			ChefDao chefDao = new ChefDao();
+			Chef chef = new Chef();
+			
+			BigInteger id = new BigInteger(130, random);
+			
+			chef.setId(id.longValue());
+			chef.setPassword(cryptWithMD5(newChef.getPassword()));
+			chef.setBirthDate(newChef.getBirthDate());
+			chef.setName(newChef.getName());
+			chef.setGender(newChef.getGender());
+	
+			//Post entity sent by parameter. It is free for everyone.
+			chefDao.saveChef(chef);
+			
+			return Response.ok().entity(chef).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response getChefById(BigDecimal chefId) throws NotFoundException {
-		Chef chef = new ChefDao().getChefById(chefId);
-		return Response.ok().entity(chef).build();
+		try {
+			Chef chef = new ChefDao().getChefById(chefId);
+			return Response.ok().entity(chef).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response putChefById(BigDecimal chefId, String token, NewChef newChef) {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		ChefDao chefDao = new ChefDao();
-		Chef chef = new Chef();
-		chef.setId(chefId.longValue());
-		chef.setPassword(cryptWithMD5(newChef.getPassword()));
-		chef.setBirthDate(newChef.getBirthDate());
-		chef.setName(newChef.getName());
-		chef.setGender(newChef.getGender());
-
-		//Only the owner can update its own data.
-		chefDao.updateItem(chef);
-		return Response.ok().entity(chef).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			ChefDao chefDao = new ChefDao();
+			Chef chef = new Chef();
+			chef.setId(chefId.longValue());
+			chef.setPassword(cryptWithMD5(newChef.getPassword()));
+			chef.setBirthDate(newChef.getBirthDate());
+			chef.setName(newChef.getName());
+			chef.setGender(newChef.getGender());
+	
+			//Only the owner can update its own data.
+			chefDao.updateItem(chef);
+			return Response.ok().entity(chef).build();
+			
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response deleteChefById(BigDecimal chefId, String token) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Only the owner can delete its own data.
-		chefDao.deleteChef(chefId);
-		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			//Only the owner can delete its own data.
+			chefDao.deleteChef(chefId);
+			return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+			
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 	
 	//Encrypt password for security

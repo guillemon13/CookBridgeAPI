@@ -48,6 +48,5 @@ public class RestaurantDao {
 				ObjectifyService.ofy().delete().entity(jo).now();	
 		}
 		
-		
 	}
 }

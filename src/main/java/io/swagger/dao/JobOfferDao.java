@@ -12,6 +12,11 @@ import com.googlecode.objectify.cmd.*;
 
 public class JobOfferDao {
 	
+	public List<JobOffer> getRestaurantJobOffers() {
+		List<JobOffer> jobOffers = ObjectifyService.ofy().load().type(JobOffer.class).list();
+		return jobOffers;
+	}
+	
 	public List<JobOffer> getRestaurantJobOffers(BigDecimal restaurantId)
 	{
 		List<JobOffer> jobOffers = ObjectifyService.ofy().load().type(JobOffer.class).list();

@@ -31,109 +31,105 @@ public class WorksApiServiceImpl extends WorksApiService {
 	@Override
 	public Response getWorks(String token, Double size, BigDecimal restaurantId,
 			BigDecimal chefId) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Retrieve all work positions that this chef had in this restaurant.
-		List<Work> works = workDao.getWorkByChefAndRestaurant(chefId, restaurantId);
-		GenericEntity<List<Work>> list = new GenericEntity<List<Work>>(works) {};
-		
-		return Response.ok(list).build();
+		try {
+			//Retrieve all work positions that this chef had in this restaurant.
+			List<Work> works = workDao.getWorkByChefAndRestaurant(chefId, restaurantId);
+			GenericEntity<List<Work>> list = new GenericEntity<List<Work>>(works) {};
+			
+			return Response.ok(list).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response postWorks(NewWork newWork, String token) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		Work work = new Work();
-		
-		BigInteger id = new BigInteger(130, random);
-		work.setId(id.longValue());
-		
-		work.setChefId(newWork.getChefId());
-		work.setRestaurantId(newWork.getRestaurantId());
-		work.setPosition(newWork.getPosition());
-		work.setBeginDate(newWork.getBeginDate());
-		work.setEndDate(newWork.getEndDate());
-		
-		//Chef saves its work position.
-		workDao.saveWork(work);
-		return Response.ok().entity(work).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			Work work = new Work();
+			
+			BigInteger id = new BigInteger(130, random);
+			work.setId(id.longValue());
+			
+			work.setChefId(newWork.getChefId());
+			work.setRestaurantId(newWork.getRestaurantId());
+			work.setPosition(newWork.getPosition());
+			work.setBeginDate(newWork.getBeginDate());
+			work.setEndDate(newWork.getEndDate());
+			
+			//Chef saves its work position.
+			workDao.saveWork(work);
+			return Response.ok().entity(work).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response getWorksById(BigDecimal workId, String token) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		
-		Work work = workDao.getWorkById(workId);
-		return Response.ok().entity(work).build();
+		try {
+			Work work = workDao.getWorkById(workId);
+			return Response.ok().entity(work).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response putWorksById(BigDecimal workId, String token, NewWork newWork) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		Work work = new Work();
-		
-		work.setId(workId.longValue());
-		work.setChefId(newWork.getChefId());
-		work.setRestaurantId(newWork.getRestaurantId());
-		work.setPosition(newWork.getPosition());
-		work.setBeginDate(newWork.getBeginDate());
-		work.setEndDate(newWork.getEndDate());
-		
-		//Only chef can update work position. 
-		workDao.updateWork(work);
-		return Response.ok().entity(work).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			Work work = new Work();
+			
+			work.setId(workId.longValue());
+			work.setChefId(newWork.getChefId());
+			work.setRestaurantId(newWork.getRestaurantId());
+			work.setPosition(newWork.getPosition());
+			work.setBeginDate(newWork.getBeginDate());
+			work.setEndDate(newWork.getEndDate());
+			
+			//Only chef can update work position. 
+			workDao.updateWork(work);
+			return Response.ok().entity(work).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response deleteWorksById (BigDecimal workId, String token) throws NotFoundException {
-	
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Only chef can delete work position. 
-		workDao.deleteWork(workId);
-		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			//Only chef can delete work position. 
+			workDao.deleteWork(workId);
+			return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	//Encrypt password for security

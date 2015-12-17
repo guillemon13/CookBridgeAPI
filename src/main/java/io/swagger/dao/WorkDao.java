@@ -19,9 +19,25 @@ public class WorkDao {
 		List<Work> works = ObjectifyService.ofy().load().type(Work.class).list();
 		List<Work> result = new ArrayList<Work>();
 		
-		for (Work work : works) {
-			if (work.getChefId() == chefId.longValue() && work.getRestaurantId() == restaurantId.longValue())
-				result.add(work);
+		if (chefId != null && restaurantId != null) {
+		
+			for (Work work : works) {
+				if (work.getChefId() == chefId.longValue() && work.getRestaurantId() == restaurantId.longValue())
+					result.add(work);
+			}
+		
+		} else if (chefId == null && restaurantId != null) {
+			for (Work work : works) {
+				if (work.getRestaurantId() == restaurantId.longValue())
+					result.add(work);
+			}
+		} else if (chefId != null && restaurantId == null) {
+			for (Work work : works) {
+				if (work.getChefId() == chefId.longValue())
+					result.add(work);
+			}
+		} else {
+			result = works;
 		}
 		
 		return result;

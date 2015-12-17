@@ -4,6 +4,7 @@ import io.swagger.model.Application;
 import io.swagger.model.JobOffer;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.googlecode.objectify.*;
@@ -12,8 +13,22 @@ import com.googlecode.objectify.cmd.*;
 public class ApplicationDao {
 	
 	public List<Application> getApplicationsByJobOffer (BigDecimal jobOfferId) {
-		Query<Application> applications = ObjectifyService.ofy().load().type(Application.class).filter("jobOfferId", jobOfferId.longValue());
-		return applications.list();
+		
+		List<Application> applications  = ObjectifyService.ofy().load().type(Application.class).list();
+		
+		if (jobOfferId == null) {
+			return applications;
+		} else {
+			List<Application> result = new ArrayList<Application>();
+			
+			for (Application app : applications) {
+				if (app.getJobOfferId().longValue() == jobOfferId.longValue()) 
+					result.add(app);
+			}
+			
+			return result;
+		}
+		
 	}
 	
 	public Key<Application> saveApplication(Application application) {

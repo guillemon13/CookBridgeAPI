@@ -27,58 +27,47 @@ public class ApplicationsApiServiceImpl extends ApplicationsApiService {
 	@Override
 	public Response getApplication(String token, Double size,
 			BigDecimal jobOfferId) throws NotFoundException {
-		
-		//Auth test for Restaurants.
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Restaurant restaurantTest = new RestaurantDao().getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (restaurantTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		
-		//Retrieve all job offer's applications.
-		List<Application> applications = appDao.getApplicationsByJobOffer(jobOfferId);
-		
-		return Response.ok().entity(applications).build();
+		try {
+			//Retrieve all job offer's applications.
+			List<Application> applications = appDao.getApplicationsByJobOffer(jobOfferId);
+			return Response.ok().entity(applications).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response getApplicationById(BigDecimal applicationId, String token)
 			throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Retrieve the chef's application.
-		Application application = appDao.getApplicationById(applicationId);
-		return Response.ok().entity(application).build();
+		try {
+			//Retrieve the chef's application.
+			Application application = appDao.getApplicationById(applicationId);
+			return Response.ok().entity(application).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response deleteApplicationById(BigDecimal applicationId, String token)
 			throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (chefTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Only a chef can delete its own application.
-		
-		appDao.deleteApplication(applicationId);
-		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Chef chefTest = new ChefDao().getChefById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (chefTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!chefTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			//Only a chef can delete its own application.
+			
+			appDao.deleteApplication(applicationId);
+			return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 	
 	//Encrypt password for security

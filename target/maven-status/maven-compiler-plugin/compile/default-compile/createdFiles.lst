@@ -19,12 +19,14 @@ io/swagger/dao/WorkDao.class
 io/swagger/model/Restaurant.class
 org/fluttercode/datafactory/AddressDataValues.class
 edu/upc/SignGuestbookServlet.class
+io/swagger/api/impl/ChefsApiServiceImpl$2.class
 io/swagger/api/JobOfferApiService.class
 io/swagger/model/Application.class
 io/swagger/api/RestaurantsApiService.class
 org/fluttercode/datafactory/impl/DefaultContentDataValues.class
 io/swagger/api/impl/WorksApiServiceImpl$1.class
 io/swagger/api/RestaurantsApi.class
+io/swagger/api/impl/JobOfferApiServiceImpl$2.class
 io/swagger/model/NewRestaurant.class
 edu/upc/ase/helper/GsonUTCDateAdapter.class
 edu/upc/ase/helper/OfyHelper.class

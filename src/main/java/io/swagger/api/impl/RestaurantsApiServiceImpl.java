@@ -39,89 +39,98 @@ public class RestaurantsApiServiceImpl extends RestaurantsApiService {
 	
 	@Override
 	public Response getRestaurants(String token, Double size) throws NotFoundException {
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (restaurantTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		List<Restaurant> restaurants = restDao.getAllRestaurants();
-		GenericEntity<List<Restaurant>> list = new GenericEntity<List<Restaurant>>(restaurants) {};
-		
-		return Response.ok(list).build();
+		try {
+			List<Restaurant> restaurants = restDao.getAllRestaurants();
+			GenericEntity<List<Restaurant>> list = new GenericEntity<List<Restaurant>>(restaurants) {};
+			
+			return Response.ok(list).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response postRestaurant(NewRestaurant newRestaurant)
 			throws NotFoundException {
-		Restaurant restaurant = new Restaurant();
-		
-		BigInteger id = new BigInteger(130, random);
-		
-		restaurant.setId(id.longValue());
-		
-		restaurant.setAddress(newRestaurant.getAddress());
-		restaurant.setPassword(cryptWithMD5(newRestaurant.getPassword()));
-		restaurant.setName(newRestaurant.getName());
-		restaurant.setCity(newRestaurant.getCity());
-		restaurant.setWebsite(newRestaurant.getWebsite());
-		
-		//Post entity sent by parameter. It is free for everyone.
-		restDao.saveRestaurant(restaurant);
-		return Response.ok().entity(restaurant).build();
+		try {
+			Restaurant restaurant = new Restaurant();
+			
+			BigInteger id = new BigInteger(130, random);
+			
+			restaurant.setId(id.longValue());
+			
+			restaurant.setAddress(newRestaurant.getAddress());
+			restaurant.setPassword(cryptWithMD5(newRestaurant.getPassword()));
+			restaurant.setName(newRestaurant.getName());
+			restaurant.setCity(newRestaurant.getCity());
+			restaurant.setWebsite(newRestaurant.getWebsite());
+			
+			//Post entity sent by parameter. It is free for everyone.
+			restDao.saveRestaurant(restaurant);
+			return Response.ok().entity(restaurant).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response getRestaurantById(BigDecimal restaurantId)
 			throws NotFoundException {
-		Restaurant restaurant = restDao.getRestaurantById(restaurantId);
-		return Response.ok().entity(restaurant).build();
+		try {
+			Restaurant restaurant = restDao.getRestaurantById(restaurantId);
+			return Response.ok().entity(restaurant).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response putRestaurantById(BigDecimal restaurantId, String token, 
 			NewRestaurant newRestaurant) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (restaurantTest == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		Restaurant restaurant = new Restaurant();
-		restaurant.setId(restaurantId.longValue());
-		restaurant.setPassword(cryptWithMD5(newRestaurant.getPassword()));
-		restaurant.setAddress(newRestaurant.getAddress());
-		restaurant.setName(newRestaurant.getName());
-		restaurant.setCity(newRestaurant.getCity());
-		restaurant.setWebsite(newRestaurant.getWebsite());
-
-		//Only the owner can update its own data.
-		restDao.updateRestaurant(restaurant);
-		return Response.ok().entity(restaurant).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Restaurant restaurantTest = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (restaurantTest == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!restaurantTest.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			Restaurant restaurant = new Restaurant();
+			restaurant.setId(restaurantId.longValue());
+			restaurant.setPassword(cryptWithMD5(newRestaurant.getPassword()));
+			restaurant.setAddress(newRestaurant.getAddress());
+			restaurant.setName(newRestaurant.getName());
+			restaurant.setCity(newRestaurant.getCity());
+			restaurant.setWebsite(newRestaurant.getWebsite());
+	
+			//Only the owner can update its own data.
+			restDao.updateRestaurant(restaurant);
+			return Response.ok().entity(restaurant).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 
 	@Override
 	public Response deleteRestaurantById(BigDecimal restaurantId, String token) throws NotFoundException {
-		
-		//Auth test
-		String[] userPass = getUsernameAndPassword(token);
-		
-		Restaurant restaurant = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
-		if (restaurant == null) 
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		else if (!restaurant.getPassword().equals(cryptWithMD5(userPass[1])))
-			return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
-		
-		//Only the owner can delete its own data.
-		restDao.deleteRestaurant(restaurantId);
-		return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		try {
+			//Auth test
+			String[] userPass = getUsernameAndPassword(token);
+			
+			Restaurant restaurant = restDao.getRestaurantById(new BigDecimal(Long.valueOf(userPass[0])));
+			if (restaurant == null) 
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			else if (!restaurant.getPassword().equals(cryptWithMD5(userPass[1])))
+				return Response.status(401).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "unauthorized!")).build();
+			
+			//Only the owner can delete its own data.
+			restDao.deleteRestaurant(restaurantId);
+			return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "deleted!")).build();
+		} catch (NullPointerException npe) {
+			return Response.status(501).entity(new ApiResponseMessage(ApiResponseMessage.ERROR, " PARAMETER MISSING!")).build();
+		}
 	}
 	
 	//Encrypt password for security
