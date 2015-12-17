@@ -119,7 +119,8 @@ public class JobOfferApi  {
     throws NotFoundException {
         return delegate.deleteJobOfferById(jobOfferId,token);
     }
-    @POST
+
+    @GET
     @Path("/{jobOfferId}/apply")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
